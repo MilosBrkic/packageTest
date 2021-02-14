@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,17 +62,12 @@ public class SocketThread extends Thread{
                 System.out.println("Primljen paket: "+paket);
                 System.out.println("Vreme: "+new SimpleDateFormat("hh:mm:ss").format(new Date()));
                 System.out.println("\n");
-                      
-                //dummy
+                
                 if(paket.getType() == 1){
                     ResponseThread thread = new ResponseThread(paket, paketi, outputStream);
                     niti.add(thread);
                     thread.start();
                 }
-                //cancel
-                else{
-                    stop = true;
-                }       
             }
             
             System.out.println("\nPrimanje paketa je prekinuto\n");
@@ -133,6 +129,7 @@ public class SocketThread extends Thread{
                 System.out.println("Istekao je paket: "+paket);
                 Form.getInstance().expired(paket);
                 paketi.remove(paket);
+                sendCancel(paket);
                 i--;
             }
             else{
@@ -144,7 +141,18 @@ public class SocketThread extends Thread{
     }
     
     
-    
+    private void sendCancel(ServerPackage paket){
+        try {
+            byte[] header = new byte[]{2,0,0,0, 12,0,0,0};           
+            byte[] cancelPackage = Arrays.copyOf(paket.getByteFormat(), 12);
+            System.arraycopy(header, 0, cancelPackage, 0, header.length);
+          
+            outputStream.write(cancelPackage);
+            
+        } catch (IOException ex) {
+            System.out.println("Greska pri slanju paketa");
+        }       
+    }
     
     
 }

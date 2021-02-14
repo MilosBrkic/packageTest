@@ -33,7 +33,7 @@ public class ResponseThread extends Thread {
     @Override
     public void run() {
         try {
-            sleep(paket.getRemaningTime());                                  
+            sleep(paket.getRemaningTime());
             outputStream.write(paket.getByteFormat());           
             lista.remove(paket);
             
